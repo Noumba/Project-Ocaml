@@ -82,15 +82,15 @@ let sanitize entity_type context_type evaluation_strat typing user_styles name=
   |(Entity_type 3,Context_type 3,Evaluation_strat 3,Correct_type 3) -> user_styles
 |(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 4) -> user_styles																				
   |(Entity_type _,Context_type _,Evaluation_strat _,Correct_type _) -> let new_style = 
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				
-																				let y = {name = (setName name); factor = x }
-																				in
-																				let () = print_endline("passing style is :" ^ name)
-																				in																																					
-																			insert_new_style user_styles x y 	
-																			in new_style 
+								let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+								in 
+								
+								let y = {name = (setName name); factor = x }
+								in
+								let () = print_endline("passing style is :" ^ name)
+								in																																					
+							insert_new_style user_styles x y 	
+							in new_style 
 ;;
 
 let get_name entity_type context_type evaluation_strat typing  =   (**Method that Gets the name of a passing style or takes name from user if user defined style*)
@@ -108,14 +108,14 @@ let get_name entity_type context_type evaluation_strat typing  =   (**Method tha
 let effect_factor entity_type context_type evaluation_strat typing =    (**Method that simulates the effects of the various known passing styles*)
 		   match (entity_type, context_type, evaluation_strat, typing) with 
 		   (Entity_type 1,Context_type 1,Evaluation_strat 1,Correct_type 1) -> let no_mut   =  (**For call by value*)
-																					let () = print_string "Enter value for a variable t: " in 
-																					let t =  read_int() in
-																				  let r = ref t in 								 
-																					let v = r in print_endline "After computation, Reference var is now:"; 
-																					(let f = fun r -> r := !v+3; !r  
-																					in let b = {init_var = t; eval = f (v); final_var = !v }
-																					in let ft = fun x -> x in ft b   )
-		 												in no_mut 									 		
+									let () = print_string "Enter value for a variable t: " in 
+									let t =  read_int() in
+									let r = ref t in 								 
+									let v = r in print_endline "After computation, Reference var is now:"; 
+									(let f = fun r -> r := !v+3; !r  
+									in let b = {init_var = t; eval = f (v); final_var = !v }
+									in let ft = fun x -> x in ft b   )
+		in no_mut 									 		
 		   |(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 3) -> let new_add = (**For call by reference*)
 									let () = print_string "Enter value for reference variable: " in 
 										let t =  read_int() in
@@ -136,109 +136,109 @@ let effect_factor entity_type context_type evaluation_strat typing =    (**Metho
 							  let b = {init_var = x; eval = f x y; final_var = x } in let ft = fun x -> x in ft b
 								in add (x) (x)
 								in add_2_var
-								|(Entity_type 3,Context_type 3,Evaluation_strat 3,Correct_type 3) -> let copy_rest =  (**For call by copy-restore*)
-																																		let () = print_string "Enter value for a reference variable: " in 
-																																		let var1 = read_int() in 																													
-																																		let r = ref var1 in 																																																																				
-																																		let call_copy_restore v  = 						 
-																																		let v = r in let copy_var = !v ; in
-																																		(let () = r := !v+5;  
-																																		in let b = {init_var = copy_var; eval = !r; final_var = !v } 
-																																		in let ft = fun x -> x in ft b   )																																																																																																																	
-																																		in call_copy_restore r  
-																																		in copy_rest 
-			 |(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 4) -> let new_add =  (**For call by Need*)
+			|(Entity_type 3,Context_type 3,Evaluation_strat 3,Correct_type 3) -> let copy_rest =  (**For call by copy-restore*)
+							let () = print_string "Enter value for a reference variable: " in 
+							let var1 = read_int() in 																													
+							let r = ref var1 in 																																																																				
+							let call_copy_restore v  = 						 
+							let v = r in let copy_var = !v ; in
+							(let () = r := !v+5;  
+							in let b = {init_var = copy_var; eval = !r; final_var = !v } 
+							in let ft = fun x -> x in ft b   )																																																																																																																	
+							in call_copy_restore r  
+							in copy_rest 
+			|(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 4) -> let new_add =  (**For call by Need*)
 																													
-																															let () = print_string "Enter value for first variable x: " in 
-																															let   p =  (read_int()) in let x = lazy (p+p) in 
-																															let () = print_string "Enter value for second variable t: " in 																															
-																															let t = read_int() in																															
-																															let r = ref t in 								 																															
-																															let by_need  (lazy (x)) = 
-																															let () = r := x ;							
-																															in let b = {init_var = x; eval = !r ; final_var = x } in let ft = fun x -> x in ft b
-																															in by_need (x) 
-																															in new_add									
+							let () = print_string "Enter value for first variable x: " in 
+							let   p =  (read_int()) in let x = lazy (p+p) in 
+							let () = print_string "Enter value for second variable t: " in 																															
+							let t = read_int() in																															
+							let r = ref t in 								 																															
+							let by_need  (lazy (x)) = 
+							let () = r := x ;							
+							in let b = {init_var = x; eval = !r ; final_var = x } in let ft = fun x -> x in ft b
+							in by_need (x) 
+							in new_add									
 		   |(Entity_type _,Context_type _,Evaluation_strat _,Correct_type _)->{ init_var = 4 ; eval = 5; final_var = 6}  (**For userdefined*)
 
 (**Method that returns a specific passing style from list of styles*)
 let paramstyle entity_type context_type evaluation_strat typing user_styles name=  (**Method that returns a specific passing style from list of styles*)
  match (entity_type, context_type, evaluation_strat, typing) with     
   (Entity_type 1,Context_type 1,Evaluation_strat 1,Correct_type 1) -> let rec get_style_list =  
-																				let name = name 																				
-																				in					
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x }
-																				in
-						   													 let () = print_endline("passing style is: " ^ name)
-						 														in																				
-																				return_inserted_style user_styles x y 
-																			in get_style_list
+					let name = name 																				
+					in					
+					let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+					in 
+					let y = {name = (setName name); factor = x }
+					in
+						let () = print_endline("passing style is: " ^ name)
+					in																				
+					return_inserted_style user_styles x y 
+				in get_style_list
   |(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 3) -> let rec get_style_list  =  
-																				let name = name
-																				in	 																	
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x }
-																				in
-																				 let () = print_endline("passing style is: " ^ name)
-																				in
-																				(*let f = fun x -> x in f y*)
-																				return_inserted_style user_styles x y 
+				let name = name
+				in	 																	
+				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+				in 
+				let y = {name = (setName name); factor = x }
+				in
+					let () = print_endline("passing style is: " ^ name)
+				in
+				(*let f = fun x -> x in f y*)
+				return_inserted_style user_styles x y 
 																			in get_style_list 																												
   |(Entity_type 2,Context_type 2,Evaluation_strat 2,Correct_type 2) -> let rec get_style_list  =  
-																				let name = name
-																				in
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x }
-																				in
-																			    let () = print_endline("passing style is: " ^ name)
-																				in 
-																				(*let f = fun x -> x in f y*)
-																				return_inserted_style user_styles x y
+				let name = name
+				in
+				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+				in 
+				let y = {name = (setName name); factor = x }
+				in
+					let () = print_endline("passing style is: " ^ name)
+				in 
+				(*let f = fun x -> x in f y*)
+				return_inserted_style user_styles x y
 																			in get_style_list 		 
   |(Entity_type 3,Context_type 3,Evaluation_strat 3,Correct_type 3) -> let rec get_style_list  =  
-																				let name = name
-																				in																			
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x }
-																				in
-																				let () = print_endline("passing style is :" ^ name)
-																				in
-																				(*let f = fun x -> x in f y*)
-																				return_inserted_style user_styles x y
-																			in get_style_list 
+				let name = name
+				in																			
+				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+				in 
+				let y = {name = (setName name); factor = x }
+				in
+				let () = print_endline("passing style is :" ^ name)
+				in
+				(*let f = fun x -> x in f y*)
+				return_inserted_style user_styles x y
+			in get_style_list 
 |(Entity_type 1,Context_type 2,Evaluation_strat 3,Correct_type 4) -> let rec get_style_list  =  
 																		
-																				let name = name
-																				in																			
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x }
-																				in
-																				 let () = print_endline("passing style is: " ^ name)
-																				in
-																				(*let f = fun x -> x in f y*)
-																				return_inserted_style user_styles x y
-																			in get_style_list 																					
+				let name = name
+				in																			
+				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+				in 
+				let y = {name = (setName name); factor = x }
+				in
+					let () = print_endline("passing style is: " ^ name)
+				in
+				(*let f = fun x -> x in f y*)
+				return_inserted_style user_styles x y
+			in get_style_list 																					
   |(Entity_type _,Context_type _,Evaluation_strat _,Correct_type _) -> let new_style = 
-																				let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
-																				in 
-																				let y = {name = (setName name); factor = x } 
-																				in
-																				let () = print_endline("passing style is :" ^ name)
-																				in																																																								
-																			return_inserted_style user_styles x y 	
-																			in new_style  
+						let  x = {fac1 = entity_type; fac2 = context_type; fac3 = evaluation_strat; fac4 = typing}
+						in 
+						let y = {name = (setName name); factor = x } 
+						in
+						let () = print_endline("passing style is :" ^ name)
+						in																																																								
+					return_inserted_style user_styles x y 	
+					in new_style  
 
 let help = fun () -> print_string "\nAvailable factors for passing styles\n
-1 - Entity Passed\n 
-2 - Context\n
-3 - Evaluation Strategy\n
-4 - Typing
+	1 - Entity Passed\n 
+	2 - Context\n
+	3 - Evaluation Strategy\n
+	4 - Typing
 \n
 Enter number for the selected factor for the passing style: "
 
