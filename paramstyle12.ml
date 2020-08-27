@@ -1,5 +1,5 @@
 
-(* C:\Users\user\Desktop\Projectdocs\prog\paramstyle8.ml *)
+(* C:\Users\user\Desktop\Projectdocs\prog\paramstyle12.ml *)
 
 (**Assuming the factors that effect parameter passing include entity passed, context, evaluation and typing *)
 
