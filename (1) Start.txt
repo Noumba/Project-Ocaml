@@ -1,0 +1,23 @@
+(1) Start
+(2) Add passing style and interpretation
+     Remove passing and interpretation
+     See all passing styles
+     Select style from passing style structure
+(3) Read selected_operation f 
+(4) IF f = Add passing style THEN
+      Passing_style_list <-- Add_passing_style_and_interpretation Passing_style_list Style
+      GOTO step 2
+      ENDIF
+(5) IF f = Remove passing style THEN
+      Passing_style_list <-- Remove_passing_style_and_interpretation  Passing_style_list  Style
+      GOTO step 2
+      ENDIF
+(6) IF f = See all passing styles THEN
+      Display Passing_style_list
+      GOTO step 2
+      ENDIF 
+(7) IF f = Select style from passing style structure THEN
+      Display_all_info_about_select_style  Style
+      GOTO step 2
+      ENDIF
+(8) Stop

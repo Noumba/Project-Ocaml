@@ -1,0 +1,26 @@
+(1) Start
+(2) Display factors (enity passed, context, evaluation, typing)
+(3) entity = [a], context = [a], evaluation = [a], typing = [a]  (* 'a' represents initial value for factors*)
+(4) Read selected factor fac
+(5) IF (fac = entity) THEN 
+        Read Number N              (*number N to initialise selected factor*)
+        entity <-- add_to_list entity N  (*adding N to list that holds values for selected factor (entity in this case)*)
+        GOTO step 9  ENDIF
+(6) IF (fac = evaluation) THEN 
+        Read Number N
+        evaluation <--  add_to_list  evaluation  N
+        GOTO step 9  ENDIF
+(7) IF (fac = context) THEN 
+        Read Number N
+        context <--  add_to_list  context  N
+        GOTO step 9  ENDIF
+(8) IF (fac = typing) THEN 
+        Read Number N
+        typing <--   add_to_list typing  N
+        GOTO step 9  ENDIF
+(9) IF (more factors?) THEN 
+      GOTO step 4 ELSE GOTO step 10  ENDIF
+(10) Read name name                                                (*name for the passing style*)
+(11) factors <-- preserve_default {entity ; context; evaluation; typing}      (preserve default values for factors not of interest to the user but removes default values for selected factors)
+(12) Passing_style <-- {name ; factors}                                                   (*creating the passing style*)
+(13) List_of_styles <-- List_of_styles :: Passing_style                               (*adding newly created style to list of styles if not in list*)
