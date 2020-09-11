@@ -28,7 +28,10 @@ Correct_type of leon
  match n with 
  Passing_style name -> Passing_style name
 
- let getName name = 
+(*Method to get the passing style name
+@param name : name of passing style with defined constructor
+**)
+ let getName name = 			
 	match name with 
 	Passing_style a -> a 
  
@@ -342,6 +345,8 @@ let preserve_default = fun record ->
 		typ = remove_head record.typ 
 	} 
 
+(***)
+
 let factor_name fac_name =
 	match fac_name with 
 	"entity" -> 1
@@ -457,7 +462,7 @@ let rec delete_interpretation name interpret_list =
 																				else 
 																					(a,b) :: delete_interpretation name t 
 
-let rec modify_interpretation interpret_list =
+(*let rec modify_interpretation interpret_list =
 	let () = print_string " Give the name of the passing style you want to modify it interpreteation: "
 	in let style_name = read_line()
 	in let () = print_string "Give the modified interpretation: "
@@ -466,7 +471,12 @@ let rec modify_interpretation interpret_list =
 		match interpret_list with 
 		[] ->  []
 		|(a,b) :: t -> if a = (setName style_name) then (a, modified) :: t else (a,b) :: modify style_name t 
-		in modify style_name
+		in modify style_name*)
+
+	(*Insert an interpretation for a passing style 
+	@param name : name of the passing style
+	@param : interpretation list
+	**)	
 
 let insert_new_interpretation name interpretation_list = 
 	let () = print_string "Give interpretation for this passing style: "
@@ -474,6 +484,10 @@ let insert_new_interpretation name interpretation_list =
 	in let interpreter = (Passing_style name, interpretation)
 	in insert_interpretation interpreter interpretation_list
 
+	(*retieves an interpretation for a passing style 
+	@param name : name of the passing style
+	@param : interpretation list
+	**)	
 let rec look_up_interpretation name interpret_list = 
 	match interpret_list with
 	[] -> "No such passing style interpretation"
@@ -513,6 +527,9 @@ let name = get_name (Entity_type record.ent) (Context_type record.context) (Eval
 
 type view_interpret_rec = {styles : style_factors list ; interp : (passing_style * string) list ; known: unit}
 
+	(*Function to print list 
+	@param : interpretation list
+	**)	
 let print_list_li li =
 let rec print_list li = 
 	match li with 
@@ -523,7 +540,9 @@ let rec print_list li =
 	print_list li ;
 	print_string "]"
 
-
+(*Method to print a list of passing style 
+	@param styles : list of styles
+	**)	
 let print_styles styles =
 let rec print_style_list styles =
 	match styles with 
@@ -538,6 +557,9 @@ let rec print_style_list styles =
 						 print_style_list styles;
 						 print_string "]"
 
+(*Method to print a specific style passing style 
+	@param styles : list of styles
+	**)					 
 let print_specific_style record = 
 match record with 
 {name = Passing_style a;	factor ={entity = Entity_type b; context = Context_type c; evaluation = Evaluation_strat d;
@@ -546,13 +568,18 @@ match record with
 												 print_string "factors = {entity = ";print_list_li b;print_string "; context = ";print_list_li c;
 												 print_string "; evaluation = ";print_list_li d;print_string " typing = "; print_list_li e;print_endline "}}"
 
+(*Method to print specific factors of a passing style
+			@param record : passing style
+			**)	
 let print_factors record = 
 	match record.factor with
 	{entity = Entity_type b; context = Context_type c; evaluation = Evaluation_strat d;typing = Correct_type e}
 	->  print_string "factors = {entity = ";print_list_li b;print_string "; context = ";print_list_li c;
 	print_string "; evaluation = ";print_list_li d;print_string " typing = "; print_list_li e;print_endline "}"
 
-
+(*Method to print an effect for a passing style 
+			@param record : factors for the passing style
+			**)	
 let print_effect record = 
 	match record with
 	{init_var = a; eval = b; final_var = c }
@@ -560,8 +587,11 @@ let print_effect record =
 	print_string "; final_var = ";print_int c; print_endline "}"
 
 
+(*Method to view all passing styles in structure 
+			@param styles : list of styles
+			@param interpretation: 
+			**)		
 let rec view_style styles interpretation_list =
-
 let () = print_string "Give passing style name: "
 in let ps_name = read_line() 
 in let styless = styles in 
@@ -603,8 +633,9 @@ let () = print_string "\nWelcome\nTo test for known style(hardcoded), enter valu
 Else other values defines a new style\n" 
 
 
-(**Method that gives users options on what next they may wish to do
-	@param styles : list of passing style to work with	
+(**Method that gives users options on they may wish to do
+	@param user_styles : list of passing style to work with
+	@param interpretation_list: 	
 *)
 let rec usermind user_styles interpretation_list= let () = display_menu () 
 in let () = print_string " Enter your choice (1-5): "
