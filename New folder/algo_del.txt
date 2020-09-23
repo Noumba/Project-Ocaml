@@ -1,0 +1,15 @@
+start
+Read style_name
+exit = false, temp = []
+REPEAT
+Read head_of_list
+if style_name = head_of_list.name 
+then 
+list1 <--  remove_hd   hd  list
+list <-- Add list1 temp
+exit = true
+else
+temp <-- Add  hd  temp
+list <-- tail
+UNTILL exit = true
+stop

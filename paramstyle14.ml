@@ -69,13 +69,13 @@ let rec insert_instance instance_list y =
 	@param styles: list to remove passing style from
 	@param y : passing style to be removed
 *)	
-	let rec remove_passing_style styles y =
-		match styles with 
-		| [] -> let () = print_string "\nNo such passing style in the structure. \n\n" in []
-		| h :: t -> if h = y 
-								then 
-								let () = print_string " deleted successfully." in t 
-					else h :: remove_passing_style t y  
+let rec remove_passing_style styles y =
+	match styles with 
+	| [] -> let () = print_string "\nNo such passing style in the structure. \n\n" in []
+	| h :: t -> if h = y 
+							then 
+							let () = print_string " deleted successfully." in t 
+				else h :: remove_passing_style t y  
 
 
 let validate_input () = let () = print_string " " in 
@@ -95,12 +95,24 @@ type factors = {entity : entity_type; context : context_type; evaluation : evalu
 type by_val = {init_var: int; eval: int; final_var : int }        
 type style_factors = {name : passing_style; factor : factors} (** Record type to hold the properties of a passing style, consist of passing style name and factors*)
 
-type time = {ent: factors_instance_list ; context: factors_instance_list; eval: factors_instance_list; typ: factors_instance_list }    (**Record type for holding instances of parameter passing style factors*)
+
+type interpret_rec = {styles : style_factors list ; interp : (passing_style * string) list }
+type interpret_rec1 = {styles : style_factors list ; interp : (passing_style * string) list; new_entity_instance_list:(string*int) list;
+new_context_instance_list:(string*int) list;new_eval_instance_list:(string*int) list }
+type new_factor_instance1 = {fact_name:string ; num:int ; new_entity_instance_list:(string*int) list}	
+type new_factor_instance2 = {fact_name:string ; num:int ; new_context_instance_list:(string*int) list}
+type new_factor_instance3 = {fact_name:string ; num:int ; new_eval_instance_list:(string*int) list}
+
+type time = {ent: factors_instance_list ; context: factors_instance_list; eval: factors_instance_list; typ: factors_instance_list;
+new_entity_instance_list:(string*int) list; new_context_instance_list:(string*int) list; new_eval_instance_list:(string*int) list }    (**Record type for holding instances of parameter passing style factors*)
 
 (**Default instances(value) for parameter passing style factors
 @value [5] : default instance for factors not of interest to the users
 *)
-let record = {ent = [5] ; context = [5]; eval = [5]; typ = [5]}      
+let record = {ent = [5] ; context = [5]; eval = [5]; typ = [5]; new_entity_instance_list = [("new",12)]; new_context_instance_list = [("new",12)];
+new_eval_instance_list = [("new",12)] } 
+
+let trash = record.new_entity_instance_list
 
 (**List of  Known(hard-coded) passing styles   *)
 let user_styles = [{name = Passing_style "Pass by Value";				
@@ -159,7 +171,6 @@ let get_name entity_type context_type evaluation_strat typing  =
 |(Entity_type [1],Context_type [2],Evaluation_strat [3],Correct_type [4]) -> "Pass by Need"																				
 	|(Entity_type _,Context_type _,Evaluation_strat _,Correct_type _) -> let () = print_string "Enter name for your passing style: " 
 																																								in read_line()
-
 ;;
  (**Method used to simulate the effects of the various known passing styles*)
 let effect_factor entity_type context_type evaluation_strat typing =   
@@ -296,10 +307,9 @@ let display_menu =
 	6. Exit system
 	 "
 
-type interpret_rec = {styles : style_factors list ; interp : (passing_style * string) list }
 
 (**Method that display the specific factor instances and their meaning *)
-let user_facing_information styles interpretation_list = 
+let user_facing_information styles interpretation_list new_entity_instance_list new_context_instance_list a= 
 	let () =  print_string "This table represents information the user faces concerning factors of parameter passing styles
 Factors *Meaning**Instances
 
@@ -330,7 +340,8 @@ Typing     0      New_instance
 " 
 in let styles = styles
 in let interp = interpretation_list 
-in {styles = styles; interp = interp}
+in {styles = styles; interp = interp; new_entity_instance_list=new_entity_instance_list;new_context_instance_list=new_context_instance_list;
+new_eval_instance_list = a}
 
 
 (* 
@@ -351,7 +362,10 @@ let preserve_default = fun record ->
 		ent = remove_head record.ent; 
 		eval = remove_head record.eval; 
 		context = remove_head record.context;  
-		typ = remove_head record.typ 
+		typ = remove_head record.typ;
+		new_entity_instance_list = record.new_entity_instance_list;
+		new_context_instance_list = record.new_context_instance_list;
+		new_eval_instance_list = record.new_context_instance_list 
 	} 
 
 (***)
@@ -364,40 +378,104 @@ let factor_name fac_name =
 	|"typing" -> 4
 	|_->100
 
-let ent_name val_name =
-	match String.lowercase_ascii val_name with
-		"value" -> 1
-    |"reference" -> 2
-    |"computation" -> 3
-    |"environment" -> 4
-    |"continuation" -> 5
-		|"denotation" -> 6
-		|_-> let ret = let () = print_string "Give value for the factor: "
-														in let num = validate_input()
-														in f num
-														in ret 
- 
-let context_name val_name =
-	match String.lowercase_ascii val_name with
-		"calling" -> 1
-		|"called" -> 2
-		|"callboth" -> 3
-		|"other" -> 4
-		|_-> let ret = let () = print_string "Give value for the factor: "
-														in let num = validate_input()
-														in f num
-														in ret
 
-let eval_name val_name =
+
+
+
+
+let rec insert_new_instance new_instance new_instance_list = 
+	match new_instance_list with
+	[] -> let () = print_string "\nNew instance successfully added\n" in  new_instance :: []
+	|(a,b) :: t -> if (a,b) = new_instance then 
+																	let () = print_string "\nalready exist" 
+																	in new_instance_list else (a,b) :: insert_new_instance new_instance t
+
+let ent_name val_name new_entity_instance_list=
 	match String.lowercase_ascii val_name with
-		"strict" -> 1
-		|"lazy" -> 2
-		|"non" -> 3
-		|"manual" -> 4
-		|_-> let ret = let () = print_string "Give value for the factor: "
+		"value" -> {fact_name = val_name ; num=1 ; new_entity_instance_list=new_entity_instance_list}
+    |"reference" -> {fact_name = val_name ; num=2 ; new_entity_instance_list=new_entity_instance_list}
+    |"computation" ->{fact_name = val_name ; num=3 ; new_entity_instance_list=new_entity_instance_list}
+    |"environment" -> {fact_name = val_name ; num=4 ; new_entity_instance_list=new_entity_instance_list}
+    |"continuation" -> {fact_name = val_name ; num=5 ; new_entity_instance_list=new_entity_instance_list}
+		|"denotation" -> {fact_name = val_name;num=6;new_entity_instance_list=new_entity_instance_list}
+		|_-> let ret new_entity_instance_list= let () = print_string "Give name for factor: " in let newfac_name = read_line() in 
+									 let () = print_string "Give value for factor: "
 														in let num = validate_input()
-														in f num
-														in ret
+														in let new_instance = (newfac_name,num) 
+														in let new_entity_instance_list = insert_new_instance new_instance new_entity_instance_list 
+														in {fact_name = newfac_name;num=num; new_entity_instance_list=new_entity_instance_list}
+                            in ret new_entity_instance_list
+				
+let return_factor_instance num new_entity_instance_list= 
+	match num with 
+	1-> "value"
+	|2-> "reference"
+	|3-> "computation"
+	|4-> "environment"
+	|5-> "continuation"
+	|6-> "denotation"
+	|_-> let rec get_instance new_entity_instance_list=
+				match new_entity_instance_list with 
+				[] -> "none"
+				|(a,b) :: tl -> if b = num then a else get_instance tl 
+				in get_instance new_entity_instance_list 
+
+
+let context_name val_name new_context_instance_list =
+	match String.lowercase_ascii val_name with
+		"calling" ->{fact_name = val_name ; num=1 ; new_context_instance_list=new_context_instance_list}
+		|"called" ->{fact_name = val_name ; num=2 ; new_context_instance_list=new_context_instance_list}
+		|"callboth" -> {fact_name = val_name ; num=3 ; new_context_instance_list=new_context_instance_list}
+		|"other" ->{fact_name = val_name ; num=4 ; new_context_instance_list=new_context_instance_list}
+		|_-> let ret new_entity_instance_list= let () = print_string "Give name for factor: " in let newfac_name = read_line() in 
+		let () = print_string "Give value for factor: "
+						 in let num = validate_input()
+						 in let new_instance = (newfac_name,num) 
+						 in let new_context_instance_list = insert_new_instance new_instance new_context_instance_list 
+						 in {fact_name = newfac_name;num=num; new_context_instance_list=new_context_instance_list}
+						 in ret new_context_instance_list
+
+
+let return_factor_context_instance num new_context_instance_list= 
+match num with 
+1-> "calling"
+|2-> "called"
+|3-> "callboth"
+|4-> "other"
+|_-> let rec get_instance new_context_instance_list=
+			match new_context_instance_list with 
+			[] -> "none"
+			|(a,b) :: tl -> if b = num then a else get_instance tl 
+			in get_instance new_context_instance_list 
+						
+
+let eval_name val_name new_eval_instance_list =
+	match String.lowercase_ascii val_name with
+		"strict" -> {fact_name = val_name ; num=1 ; new_eval_instance_list=new_eval_instance_list}
+		|"lazy" -> {fact_name = val_name ; num=2 ; new_eval_instance_list=new_eval_instance_list}
+		|"non" -> {fact_name = val_name ; num=3 ; new_eval_instance_list=new_eval_instance_list}
+		|"manual" -> {fact_name = val_name ; num=4 ; new_eval_instance_list=new_eval_instance_list}
+		|_->  let ret new_eval_instance_list= let () = print_string "Give name for factor: " in let newfac_name = read_line() in 
+						let () = print_string "Give value for factor: "
+						 in let num = validate_input()
+						 in let new_instance = (newfac_name,num) 
+						 in let new_eval_instance_list = insert_new_instance new_instance new_eval_instance_list 
+						 in {fact_name = newfac_name;num=num; new_eval_instance_list=new_eval_instance_list}
+						 in ret new_eval_instance_list
+
+
+let return_factor_eval_instance num new_eval_instance_list= 
+match num with 
+1-> "strict"
+|2-> "lazy"
+|3-> "non"
+|4-> "manual"
+|_-> let rec get_instance new_eval_instance_list=
+			match new_eval_instance_list with 
+			[] -> "none"
+			|(a,b) :: tl -> if b = num then a else get_instance tl 
+			in get_instance new_eval_instance_list
+
 
 let typing_name val_name =
 	match String.lowercase_ascii val_name with
@@ -419,33 +497,40 @@ let typing_name val_name =
 
 let rec factor_initializer record = let () = help() in let () = print_string "Give selected factor type for the passing style: " 
 in let t1 = read_line ()
-in let t = (factor_name t1) 
+in let t = (factor_name t1)
 in if t = 1 then 
- let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line() 
- in let y = (ent_name y1) in 
+ let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line()
+ in let new_entity_instance_list1 = (ent_name y1 (record.new_entity_instance_list))
+ in let new_entity_instance_list2 = new_entity_instance_list1.new_entity_instance_list
+ in let y = new_entity_instance_list1.num
+ in 
  let () = print_string "More factors? (y/n): " in let opt = read_line() in 
 		if opt.[0] = 'y' then
-				factor_initializer ({record with ent = insert_instance (record.ent) y }) 
+				factor_initializer ({record with ent = insert_instance (record.ent) y;new_entity_instance_list = new_entity_instance_list2}) 
 		else 
-			preserve_default {record with ent = insert_instance (record.ent) y }
+			preserve_default {record with ent = insert_instance (record.ent) y; new_entity_instance_list = new_entity_instance_list2 }
 		else 
 	if t = 2 then 
-  	let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line() 
-		in let y = (context_name y1) in 
+		let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line()
+		in let new_context_instance_list1 = (context_name y1 (record.new_context_instance_list))
+ 		in let new_context_instance_list2 = new_context_instance_list1.new_context_instance_list 
+		in let y = new_context_instance_list1.num in 
 		let () = print_string "More factors? (y/n): " in let opt = read_line() in 
 			if opt.[0] = 'y' then
-				factor_initializer ({record with context = insert_instance (record.context) y })  
+				factor_initializer ({record with context = insert_instance (record.context) y; new_context_instance_list = new_context_instance_list2 })  
 			else 
-				preserve_default	{record with context = insert_instance (record.context) y }
+				preserve_default	{record with context = insert_instance (record.context) y ; new_context_instance_list = new_context_instance_list2}
 	else 
 		if t = 3 then
 			let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line() 
-			in let y = (eval_name y1) in  
+			in let new_eval_instance_list1 = (eval_name y1 (record.new_eval_instance_list))
+			in let new_eval_instance_list2 = new_eval_instance_list1.new_eval_instance_list 
+			in let y = new_eval_instance_list1.num in 
 			let () = print_string "More factors? (y/n): " in let opt = read_line() in 
 			if opt.[0] = 'y' then
-				factor_initializer ({record with eval =  insert_instance (record.eval) y})  
+				factor_initializer ({record with eval =  insert_instance (record.eval) y; new_eval_instance_list = new_eval_instance_list2 })  
 			else 
-			 preserve_default {record with eval = insert_instance (record.eval) y }
+			 preserve_default {record with eval = insert_instance (record.eval) y ; new_eval_instance_list = new_eval_instance_list2 }
 		else 
 	if t = 4 then 
   	let () = print_string "Initialise selected factor(see help menu for possible value): " in let y1 = read_line() 
@@ -469,7 +554,7 @@ let rec delete_interpretation name interpret_list =
 	[] ->let () = print_string "\nNo interpretation for the passing style\n" in  []
 	|(a,b) :: t -> if String.lowercase_ascii (getName a) = (String.lowercase_ascii name) then 
 																					let () = print_string "\n\n Interpretation deleted successfully" 
-																					in (a," ") :: t 
+																					in t 
 																				else 
 																					(a,b) :: delete_interpretation name t 
 
@@ -507,17 +592,21 @@ let rec look_up_interpretation name interpret_list =
 (**Method to Insert passing style into updated list of styles at runtime
 @param styles: Updated list of passing styles we want to add new passing style
 *)
-	let insert_new_passing_style styles interpretation_list= 
+	let insert_new_passing_style styles interpretation_list = 
   let record = factor_initializer record in 
 	let name = get_name (Entity_type record.ent) (Context_type record.context) (Evaluation_strat record.eval) (Correct_type record.typ) ; in 
 	let styles = sanitize (Entity_type record.ent) (Context_type record.context) (Evaluation_strat record.eval) (Correct_type record.typ) styles name
 	in let interp = insert_new_interpretation name interpretation_list
-	in { styles = styles ; interp = interp }
+	in let new_entity_instance_list = record.new_entity_instance_list
+	in let new_context_instance_list  = record.new_context_instance_list
+	in let new_eval_instance_list  = record.new_eval_instance_list
+	in { styles = styles ; interp = interp; new_entity_instance_list = new_entity_instance_list; new_context_instance_list  = new_context_instance_list;
+	new_eval_instance_list = new_eval_instance_list  }
 ;;
 (**Method to Remove a passing style from list of passing style
 @param styles: list of passing style
 *)
-let rec delete_passing_style styles interpretation_list = 
+let rec delete_passing_style styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list= 
 	let () = print_string "Enter name for the style: " in let name = read_line() in
 	let rec removal styles interpretation_list= 	   
 		match styles with
@@ -526,38 +615,62 @@ let rec delete_passing_style styles interpretation_list =
 												then let () = print_string "Passing style " in  let () = print_string "''" in 
 												let () = print_string name in  let () = print_string "''" in
 												remove_passing_style styles hd else 
-												removal tl interpretation_list
+												hd::removal tl interpretation_list
 	in let styles = removal styles interpretation_list  
 	in let interp = delete_interpretation name interpretation_list
-	in { styles = styles ; interp = interp } 	
+	in { styles = styles ; interp = interp; new_entity_instance_list= new_entity_instance_list; new_context_instance_list=new_context_instance_list;
+	new_eval_instance_list = new_eval_instance_list } 	
 
-type view_interpret_rec = {styles : style_factors list ; interp : (passing_style * string) list ; known: unit}
+type view_interpret_rec = {styles : style_factors list ; interp : (passing_style * string) list ; known: unit; new_entity_instance_list:(string*int) list;
+new_context_instance_list:(string*int) list; new_eval_instance_list:(string*int) list}
 
 	(*Function to print list 
 	@param : interpretation list
 	**)	
-let print_list_li li =
-let rec print_list li = 
+let print_list_li new_entity_instance_list li =
+let rec print_list new_entity_instance_list li = 
 	match li with 
 	[] -> ()
-	|hd :: tl ->  print_int hd ; print_string " "; print_list tl 
+	|hd :: tl ->  print_string (return_factor_instance hd new_entity_instance_list) ; print_string " "; print_list new_entity_instance_list tl 
 	in 
 	print_string "[";
-	print_list li ;
+	print_list new_entity_instance_list li ;
 	print_string "]"
+
+
+let print_list_li_context new_context_instance_list li =
+	let rec print_list new_context_instance_list li = 
+		match li with 
+		[] -> ()
+		|hd :: tl ->  print_string (return_factor_context_instance hd new_context_instance_list) ; print_string " "; print_list new_context_instance_list tl 
+		in 
+		print_string "[";
+		print_list new_context_instance_list li ;
+		print_string "]"
+
+
+let print_list_li_eval new_eval_instance_list li =
+	let rec print_list new_eval_instance_list li = 
+		match li with 
+		[] -> ()
+		|hd :: tl ->  print_string (return_factor_eval_instance hd new_eval_instance_list) ; print_string " "; print_list new_eval_instance_list tl 
+		in 
+		print_string "[";
+		print_list new_eval_instance_list li ;
+		print_string "]"
 
 (*Method to print a list of passing style 
 	@param styles : list of styles
 	**)	
-let print_styles styles =
-let rec print_style_list styles =
+let print_styles styles new_entity_instance_list new_context_instance_list new_eval_instance_list=
+let rec print_style_list styles=
 	match styles with 
 	[] -> ()
 	|{name = Passing_style a;	factor ={entity = Entity_type b; context = Context_type c; evaluation = Evaluation_strat d;
 		typing = Correct_type e}} :: tl
 		 -> print_endline "{name = "; print_string a; print_endline ";"; 
-										print_string "factors = {entity = ";print_list_li b;print_string "; context = ";print_list_li c;
-										print_string "; evaluation = ";print_list_li d;print_string " typing = "; print_list_li e;print_endline "}};";
+										print_string "factors = {entity = ";print_list_li new_entity_instance_list b;print_string "; context = ";print_list_li_context new_context_instance_list c;
+										print_string "; evaluation = ";print_list_li_eval new_eval_instance_list d;print_string " typing = "; print_list_li new_entity_instance_list e;print_endline "}};";
 										print_style_list tl
 						in print_string "[";
 						 print_style_list styles;
@@ -566,22 +679,22 @@ let rec print_style_list styles =
 (*Method to print a specific style passing style 
 	@param styles : list of styles
 	**)					 
-let print_specific_style record = 
+let print_specific_style record new_entity_instance_list new_context_instance_list new_eval_instance_list= 
 match record with 
 {name = Passing_style a;	factor ={entity = Entity_type b; context = Context_type c; evaluation = Evaluation_strat d;
 		typing = Correct_type e}} 
 		 -> print_endline "{name = "; print_string a; print_endline ";"; 
-												 print_string "factors = {entity = ";print_list_li b;print_string "; context = ";print_list_li c;
-												 print_string "; evaluation = ";print_list_li d;print_string " typing = "; print_list_li e;print_endline "}}"
+												 print_string "factors = {entity = ";print_list_li new_entity_instance_list b;print_string "; context = ";print_list_li_context new_context_instance_list c;
+												 print_string "; evaluation = ";print_list_li_eval new_eval_instance_list d;print_string " typing = "; print_list_li new_entity_instance_list e;print_endline "}}"
 
 (*Method to print specific factors of a passing style
 			@param record : passing style
 			**)	
-let print_factors record = 
+let print_factors record new_entity_instance_list new_context_instance_list new_eval_instance_list= 
 	match record.factor with
 	{entity = Entity_type b; context = Context_type c; evaluation = Evaluation_strat d;typing = Correct_type e}
-	->  print_string "factors = {entity = ";print_list_li b;print_string "; context = ";print_list_li c;
-	print_string "; evaluation = ";print_list_li d;print_string " typing = "; print_list_li e;print_endline "}"
+	->  print_string "factors = {entity = ";print_list_li new_entity_instance_list b;print_string "; context = ";print_list_li_context new_context_instance_list c;
+	print_string "; evaluation = ";print_list_li_eval new_eval_instance_list d;print_string " typing = "; print_list_li new_entity_instance_list e;print_endline "}"
 
 (*Method to print an effect for a passing style 
 			@param record : factors for the passing style
@@ -597,42 +710,46 @@ let print_effect record =
 			@param styles : list of styles
 			@param interpretation: 
 			**)		
-let rec view_style styles interpretation_list =
+let rec view_style styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list=
 let () = print_string "Give passing style name: "
 in let ps_name = read_line() 
-in let styless = styles in 
-let rec view styles interpretation_list = 
+in
+let rec view styles interpretation_list new_entity_instance_list= 
 match styles  with 
-[] -> let () = print_string "No such passing style in structure, try again\n" in view_style styless interpretation_list
+[] -> let () = print_string "No such passing style in structure, try again\n" in ()
 |hd :: t -> 
 				if String.lowercase_ascii (ps_name)= String.lowercase_ascii (getName hd.name)
 				then 
-					(							
-							let () = print_specific_style (paramstyle (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing)  styles ps_name)
-							in let () = print_string "\nInterpretation = \n "																	
-							in let () =	 print_string (look_up_interpretation (setName ps_name) interpretation_list)
-							in let () = print_string "\n"
-							in let () = print_factors (paramstyle (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing)  styles ps_name)
-							
-							in let () = print_string "\nEffects = " in 
-							 print_effect (effect_factor (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing))  
-					)											
-				else view t interpretation_list 
-				in let styles = styles																	
-				in view styles interpretation_list
+(						
+let () = print_specific_style (paramstyle (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing)  styles ps_name) new_entity_instance_list new_context_instance_list new_eval_instance_list
+in let () = print_string "\nInterpretation =  "																	
+in let () =	 print_string (look_up_interpretation (setName ps_name) interpretation_list)
+in let () = print_string "\n"
+in let () = print_factors (paramstyle (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing)  styles ps_name) new_entity_instance_list new_context_instance_list new_eval_instance_list
+
+in let () = print_string "\nEffects = " in 
+	print_effect (effect_factor (hd.factor.entity) (hd.factor.context) (hd.factor.evaluation) (hd.factor.typing)) 
+			
+)											
+				else view t interpretation_list new_entity_instance_list
+				in let styles = styles
+				in let new_entity_instance_list = new_entity_instance_list																	
+				in view styles interpretation_list new_entity_instance_list
 
 
-let view_specific_passing_style style interpretation_list =
-	let known = view_style style interpretation_list
+let view_specific_passing_style style interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list=
+	let known = view_style style interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list
 	in let styles = style 
 	in let interp = interpretation_list
-	in {styles = styles;interp=interp;known= known}
+	in {styles = styles;interp=interp;known= known; new_entity_instance_list = new_entity_instance_list; new_context_instance_list = new_context_instance_list;
+	new_eval_instance_list = new_eval_instance_list}
 
-let display_styles styles interpretation_list = 
+let display_styles styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list= 
 let styles =  styles
-in let () = print_styles styles 
-in let interp = interpretation_list
-in  { styles = styles ; interp = interp }
+in let () = print_styles styles new_entity_instance_list new_context_instance_list new_eval_instance_list
+in let interp = interpretation_list 
+in  { styles = styles ; interp = interp;new_entity_instance_list=new_entity_instance_list; new_context_instance_list=new_context_instance_list;
+new_eval_instance_list = new_eval_instance_list }
 ;;
 
 let () = print_string "\nWelcome\nTo test for known style(hardcoded), enter values for it factors\n 
@@ -643,24 +760,24 @@ Else other values defines a new style\n"
 	@param user_styles : list of passing style to work with
 	@param interpretation_list: 	
 *)
-let rec usermind user_styles interpretation_list= let () = display_menu () 
+let rec usermind user_styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list= let () = display_menu () 
 in let () = print_string " Enter your choice (1-5): "
 in let opinion  = validate_input() in 
 						match opinion with
 				  |1 -> let update = (insert_new_passing_style user_styles interpretation_list) in
-						 		usermind update.styles update.interp 
-					|2 ->let update = (delete_passing_style user_styles interpretation_list) in								
-								usermind  update.styles update.interp 
-					|3 ->let update = (display_styles user_styles interpretation_list) in 
-								usermind update.styles update.interp 
-					|4 ->let update = (view_specific_passing_style user_styles interpretation_list)	in 
-								usermind update.styles update.interp		
-					|5 ->let update = (user_facing_information user_styles interpretation_list) in
-								usermind update.styles update.interp
+						 		usermind update.styles update.interp update.new_entity_instance_list update.new_context_instance_list update.new_eval_instance_list 
+					|2 ->let update = (delete_passing_style user_styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list) in								
+								usermind  update.styles update.interp update.new_entity_instance_list update.new_context_instance_list update.new_eval_instance_list 
+					|3 ->let update = (display_styles user_styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list) in 
+								usermind update.styles update.interp update.new_entity_instance_list update.new_context_instance_list update.new_eval_instance_list 
+					|4 ->let update = (view_specific_passing_style user_styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list)	in 
+								usermind update.styles update.interp update.new_entity_instance_list	update.new_context_instance_list update.new_eval_instance_list 
+					|5 ->let update = (user_facing_information user_styles interpretation_list new_entity_instance_list new_context_instance_list new_eval_instance_list) in
+								usermind update.styles update.interp update.new_entity_instance_list update.new_context_instance_list update.new_eval_instance_list 
 					|_-> ()				  
 	 
 ;;
 
-usermind user_styles interpretation_list
+usermind user_styles interpretation_list record.new_entity_instance_list record.new_context_instance_list record.new_eval_instance_list
 ;;
 
